@@ -1,19 +1,19 @@
 const express = require("express");
+require("dotenv").config();
+const config = require("./config/constants");
+const connectDB = require("./u")
 
 const app = express();
 
-const PORT = 3000;
+// const port = process.env.PORT || 3000;
 
 app.use(express.json());
-
-app.get("/", (req, res) => {
-  res.send("Welcome to my app!");
-});
+connectDB();
 
 app.get("/about", (req, res) => {
   res.send("This is contact me app");
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+app.listen(config.PORT, () => {
+  console.log(`Server is running on http://localhost:${config.PORT}`);
 });
