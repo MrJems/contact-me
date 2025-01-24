@@ -1,17 +1,16 @@
-// db.js
 const mongoose = require("mongoose");
+const config = require("../config/constants");
 
-const connectDB = async () => {
-  try {
-    await mongoose.connect(process.env.DB.URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    console.log("MongoDB connected successfully!");
-  } catch (error) {
-    console.error("Error connecting to MongoDB:", error.message);
-    process.exit(1);
+const connectDB = () => {
+  const clientOptions = {
+    serverApi: { version: "1", strict: true, deprecationErrors: true },
+  };
+
+  if (!config.DB.URI) {
+    throw new Error("MONGODB_URI is not set in .env file.");
   }
+
+  return mongoose.connect(config.DB.URI, clientOptions);
 };
 
 module.exports = connectDB;
