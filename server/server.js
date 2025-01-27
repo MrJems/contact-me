@@ -7,24 +7,39 @@ const morgan = require("morgan");
 const config = require("./config/constants");
 const connectDB = require("./utils/db");
 
-const homwRoutes = require("./routes/homeRoutes");
+const homeRoutes = require("./routes/homeRoutes");
 const authRoutes = require("./routes/authRoutes");
+
+const socketServer = require("./socketServer");
+const userRoutes = require("./routes/userRoutes");
+const authenticateUser = require("./middleware/auth");
+const roles = require("./config/roles");
+const authorizeRoles = require("./middleware/authorizeRoles");
 
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
 app.use(helmet());
 app.use(morgan("dev"));
 
-app.use("/", homwRoutes);
+app.use(authenticateUser);
+app.use("/", homeRoutes);
 app.use("/auth", authRoutes);
+app.use("/users", authorizeRoles(roles.admin), userRoutes);
 
 connectDB()
   .then(() => {
     console.log("MongoDB connected successfully!");
     const server = http.createServer(app);
+    socketServer.registerSocketServer(server);
     server.listen(config.PORT, () => {
       console.log(`Server is running on http://localhost:${config.PORT}`);
     });

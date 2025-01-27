@@ -15,23 +15,23 @@ const userSchema = new mongoose.Schema(
     },
     email: {
       type: String,
-      required: [true, "Email is required"],
-      unique: true,
       lowercase: true,
       trim: true,
+      unique: true,
+      sparse: true,
     },
     password: {
       type: String,
-      required: [true, "Password is required"],
       minlength: [8, "Password must be at least 8 characters long"],
     },
     isVerified: {
       type: Boolean,
       default: false,
     },
-    roles: {
-      type: [String],
-      default: ["user"], // e.g. ["user", "admin"]
+    role: {
+      type: String,
+      enum: ["admin", "user", "anonymous"],
+      default: "user",
     },
   },
   {
@@ -39,6 +39,29 @@ const userSchema = new mongoose.Schema(
     collection: config.DB.USER_COLLECTION,
   }
 );
+
+userSchema.pre("validate", function (next) {
+  if (this.isNew) {
+    if (!this.email && !this.password) {
+      this.role = "anonymous";
+    } else {
+      if (!this.email) {
+        this.invalidate(
+          "email",
+          "Email is required if password or email is provided"
+        );
+      }
+      if (!this.password) {
+        this.invalidate(
+          "password",
+          "Password is required if password or email is provided"
+        );
+      }
+      this.role = "user";
+    }
+  }
+  next();
+});
 
 userSchema.pre("save", async function (next) {
   try {

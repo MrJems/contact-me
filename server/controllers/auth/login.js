@@ -32,7 +32,7 @@ const login = async (req, res) => {
     return res.status(200).json({
       message: "Login successful",
       token,
-      user: { username: user.username, email: user.email },
+      user: { username: user.username, email: user.email, role: user.role },
     });
   } catch (error) {
     console.error("Login Error:", error);
