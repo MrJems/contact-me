@@ -1,69 +1,61 @@
-// ChatLayout.jsx
-import React, { useEffect } from "react";
-import { useParams } from "react-router-dom";
-import ChatHeader from "../components/chat/ChatHeader";
-import ChatWindow from "../components/chat/ChatWindow";
+
+import React, { useState } from "react";
 import { Box } from "@mui/material";
-import BurgerMenu from "../components/nav/BurgerMenu";
-import { useDispatch } from "react-redux";
-import {setChosenChatUser} from "../features/chat/chatSlice";
-import {fetchUserDataByUsername} from "../api/userApi";
+import { styled } from "@mui/material/styles";
+import { useDispatch, useSelector } from "react-redux";
+import ChatHeader from "../components/chat/ChatHeader";
+import ChatInput from "../components/ui/ChatInput";
+import MessageBubble from "../components/chat/MessageBubble";
+import UserList from "../components/chat/UserList";
 
 
+const ChatContainer = styled(Box)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  height: "100%",
+  border: `1px solid ${theme.palette.grey[300]}`,
+}));
 
+const MessagesWrapper = styled(Box)(({ theme }) => ({
+  flex: 1,
+  overflowY: "auto",
+  paddingTop: theme.spacing(2),
+  paddingBottom: theme.spacing(2),
+}));
 
-const ChatLayout = () => {
-  // Grab the "username" from the route params
- const dispatch = useDispatch();
- const { username } = useParams();
+function ChatPage({ selectedUser }) {
+  const {userInfo } = useSelector((state) => state.user);
+  const username = selectedUser?.username || userInfo.username;
 
-//  useEffect(() => {
-//     const validateAndSetUser = async () => {
-//       try {
-//         const userData = await fetchUserDataByUsername(username);
-//         if (userData?.username === username) {
-//           dispatch(setChosenChatUser(userData));
-//         } else {
-//           dispatch(setError("User not found or username mismatch."));
-//         }
-//       } catch (error) {
-//         dispatch(setError("An error occurred while fetching user data."));
-//       }
-//     };
+  const [messages, setMessages] = useState([
+    { id: "1", text: "Hello!", sender: "other" },
+    { id: "2", text: "Hi, how are you?", sender: "me" },
+  ]);
 
-//     validateAndSetUser();
-//   }, [dispatch, username]);
+  const handleSend = (msg) => {
+    const newMessage = {
+      id: String(Date.now()),
+      text: msg,
+      sender: "me",
+    };
+    setMessages((prev) => [...prev, newMessage]);
+  };
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        height: "100vh",
-      }}
-    >
-      {/* Header */}
-      <ChatHeader
-        // Dynamically show which user is being chatted with
-        title={`Chat with ${username}`}
-        leftIcon={<BurgerMenu />}
-      />
+    <ChatContainer>
+      <ChatHeader username={username} />
 
-      {/* Chat Content */}
-      <Box
-        sx={{
-          px: { xs: 16, md: 30 },
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          backgroundColor: "#f8f8f8",
-        }}
-      >
-        {/* Pass the username to ChatWindow or handle it here */}
-        <ChatWindow username={username} />
+      <Box sx={{ flex: 1, display: "flex", flexDirection: "column", marginLeft:"2vw", marginRight:"2vw" }}>
+        <MessagesWrapper>
+          {messages.map((m) => (
+            <MessageBubble key={m.id} text={m.text} isSentByMe={m.sender === "me"} />
+          ))}
+        </MessagesWrapper>
+
+        <ChatInput onSend={handleSend} />
       </Box>
-    </Box>
+    </ChatContainer>
   );
-};
+}
 
-export default ChatLayout;
+export default ChatPage;

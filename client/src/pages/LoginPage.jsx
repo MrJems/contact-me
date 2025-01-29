@@ -28,15 +28,12 @@ const LoginPage = () => {
     dispatch(loginUser(formData))
       .unwrap()
       .then((res) => {
-        // login success
         console.log('Logged in user:', res);
-        // possibly redirect to a dashboard or home page
       })  
       .then(() => {
-        navigate('/'); // or whichever page
+        navigate('/');
       })
       .catch((err) => {
-        // handle error in UI or console
         console.error('Login error:', err);
       });
   };

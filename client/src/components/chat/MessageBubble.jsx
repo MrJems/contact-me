@@ -1,31 +1,37 @@
-import React from 'react';
-import { Box, Typography } from '@mui/material';
+import React from "react";
 
-const MessageBubble = ({ message }) => {
-  const isAdmin = message.sender === 'admin';
+import { styled } from "@mui/material/styles";
+import { Box } from "@mui/material";
+
+const BubbleContainer = styled(Box, {
+  shouldForwardProp: (prop) => prop !== "isSentByMe", 
+})(({ theme, isSentByMe }) => ({
+  display: "flex",
+  justifyContent: isSentByMe ? "flex-end" : "flex-start",
+  margin: theme.spacing(1, 0),
+}));
+
+const Bubble = styled(Box, {
+  shouldForwardProp: (prop) => prop !== "isSentByMe", 
+})(({ theme, isSentByMe }) => ({
+  maxWidth: "60%",
+  padding: theme.spacing(1, 2),
+  borderRadius: 16,
+  backgroundColor: isSentByMe ? theme.palette.primary.main : theme.palette.grey[300],
+  color: isSentByMe ? "#fff" : "#000",
+}));
+
+
+function MessageBubble({ text, isSentByMe }) {
+  console.log("text ", text)
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        justifyContent: isAdmin ? 'flex-start' : 'flex-end',
-        marginBottom: '0.5rem',
-      }}
-    >
-      <Box
-        sx={{
-          maxWidth: '70%',
-          padding: '0.75rem 1rem',
-          borderRadius: '12px',
-          backgroundColor: isAdmin ? '#ddd' : 'red', // or theme.palette.primary.main
-          color: isAdmin ? '#000' : '#fff',
-        }}
-      >
-        <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
-          {message.text}
-        </Typography>
-      </Box>
-    </Box>
+    <BubbleContainer isSentByMe={isSentByMe}>
+      <Bubble isSentByMe={isSentByMe}>
+        {text}
+      </Bubble>
+    </BubbleContainer>
   );
-};
+}
+
 
 export default MessageBubble;

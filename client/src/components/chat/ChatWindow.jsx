@@ -19,7 +19,6 @@ const ChatWindow = ({ user }) => {
       text,
     };
     setMessages([...messages, newMessage]);
-    // dispatch to your backend or socket if needed
   };
 
   return (
@@ -31,7 +30,6 @@ const ChatWindow = ({ user }) => {
         backgroundColor: '#f8f8f8',
       }}
     >
-      {/* Messages */}
       <Box sx={{ flex: 1, padding: '1rem', overflowY: 'auto' }}>
         {messages.map((msg) => {
          return <MessageBubble key={msg.id} message={msg} />}
@@ -39,8 +37,6 @@ const ChatWindow = ({ user }) => {
         )}
       </Box>
     
-
-      {/* Input */}
       <MessageInput onSend={handleSendMessage} />
     </Box>
   );

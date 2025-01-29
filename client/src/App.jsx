@@ -1,11 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import NotFoundPage from "./pages/NotFoundPage";
-
-
 import AuthGuard from "./components/auth/AuthGuard";
-
-
 import ChatPage from "./pages/ChatPage";
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
@@ -26,8 +22,7 @@ import { connectWithSocketServer } from "./socketCommunication/socketConnection"
 
 function App() {
   const dispatch = useDispatch();
-  const token = useSelector((state) => state.user.token);
-  const anonymousId = useSelector((state) => state.user.anonymousId);
+  const {token, anonymousId } = useSelector((state) => state.user);
   const [initialDataLoaded, setInitialDataLoaded] = useState(false);
   const [socketInitialized, setSocketInitialized] = useState(false);
   const [error, setError] = useState();
@@ -57,7 +52,6 @@ function App() {
 
   }, [token,error, anonymousId, dispatch]);
 
-
   useEffect(() => {
     if (!error && initialDataLoaded && !socketInitialized) {
       if ((token && !anonymousId) || (!token && anonymousId)) {
@@ -66,7 +60,6 @@ function App() {
       }
     }
   }, [error, initialDataLoaded, token, anonymousId, socketInitialized]);
-
 
   if (!initialDataLoaded) {
     return (

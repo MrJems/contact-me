@@ -3,17 +3,17 @@ import { createSlice } from "@reduxjs/toolkit";
 const chatSlice = createSlice({
   name: "chat",
   initialState: {
-    chosenChatUser: null, // Stores the selected user's information
-    messages: [], // Stores the messages array
-    isLoading: false, // Indicates if a chat-related operation is in progress
-    error: null, // Stores any error related to chat
-    unreadCount: 0, // Number of unread messages
+    chosenChatUser: null,
+    messages: [],
+    isLoading: false,
+    error: null,
+    unreadCount: 0,
   },
   reducers: {
     setChosenChatUser(state, action) {
       state.chosenChatUser = action.payload;
-      state.messages = []; // Reset messages when a new user is chosen
-      state.unreadCount = 0; // Reset unread messages count
+      state.messages = [];
+      state.unreadCount = 0;
     },
     addMessage(state, action) {
       state.messages.push(action.payload);

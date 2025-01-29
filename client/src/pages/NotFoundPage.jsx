@@ -1,4 +1,3 @@
-// src/pages/NotFoundPage.jsx
 import React from "react";
 import { Box, Typography, Button } from "@mui/material";
 import { Link } from "react-router-dom";
@@ -31,7 +30,7 @@ function NotFoundPage() {
           backgroundColor: "primary.main",
           color: "#ffffff",
           "&:hover": {
-            backgroundColor: "#d81b60", // a darker shade of rose red if you want
+            backgroundColor: "#d81b60",
           },
         }}
       >

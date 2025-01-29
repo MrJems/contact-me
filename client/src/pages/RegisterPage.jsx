@@ -29,15 +29,12 @@ const RegisterPage = () => {
     dispatch(registerUser(formData))
       .unwrap()
       .then((res) => {
-        // registration successful
         console.log('Registered user:', res)
-        // Possibly redirect to a different page
       })
       .then(() => {
-        navigate('/login'); // or whichever page
+        navigate('/login');
       })
       .catch((err) => {
-        // handle error, or show in UI
         console.error('Register error:', err)
       })
   }

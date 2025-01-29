@@ -1,14 +1,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { fetchUserData } from "../../api/userApi";
 
-// Async thunk to fetch all users
 export const getAllUsers = createAsyncThunk(
-  "admin/getAllUsers", // Action type
+  "admin/getAllUsers",
   async (_, { rejectWithValue }) => {
     try {
       console.log("Fetching user data...");
       const response = await fetchUserData();
-      return response; // Assume the API returns the full response, including "message" and "users"
+      return response;
     } catch (error) {
       console.error("Error fetching user data:", error);
       return rejectWithValue(error.response?.data || "Failed to fetch users");

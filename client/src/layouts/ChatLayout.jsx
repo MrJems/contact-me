@@ -1,37 +1,27 @@
-import React from 'react';
-import ChatHeader from '../components/chat/ChatHeader';
-import ChatWindow from '../components/chat/ChatWindow';
-import { Box } from '@mui/material';
-import BurgerMenu from '../components/nav/BurgerMenu';
+// layouts/ChatLayout.jsx
+import React from "react";
+import { Box } from "@mui/material";
+import ChatPage from "../pages/ChatPage";
 
-const ChatLayout = () => {
+const ChatLayout = ({ selectedUser, onBack }) => {
   return (
     <Box
       sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100vh',
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
-      {/* Header */}
-      <ChatHeader
-        title="Chat with Admin"
-        leftIcon={<BurgerMenu />}
-      />
+      {/* You could have a custom "Back" button on mobile if you want:
+        {onBack && (
+          <button onClick={onBack} style={{ width: 80, height: 40 }}>
+            Back
+          </button>
+        )}
+      */}
 
-      {/* Chat Content */}
-      <Box
-        sx={{
-          // Increase horizontal padding for more space
-          px: { xs: 16, md: 30 }, 
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          backgroundColor: '#f8f8f8',
-        }}
-      >
-        <ChatWindow />
-      </Box>
+      {/* We pass the selectedUser to ChatPage so it knows who we're chatting with */}
+      <ChatPage selectedUser={selectedUser} />
     </Box>
   );
 };

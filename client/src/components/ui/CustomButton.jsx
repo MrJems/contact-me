@@ -18,7 +18,7 @@ const CustomButton = ({
       fullWidth
       sx={{
         marginTop: '1rem',
-        textTransform: 'none',  // avoid uppercase if preferred
+        textTransform: 'none',
       }}
       {...props}
     >

@@ -49,7 +49,7 @@ const userSlice = createSlice({
       state.token = null;
     },
     setUserInfo: (state, action) => {
-      state.userInfo = action.payload; // Set the username and role
+      state.userInfo = action.payload;
     },
     logoutUser: (state) => {
       state.userInfo = null;

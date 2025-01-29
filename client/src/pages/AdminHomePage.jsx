@@ -1,169 +1,56 @@
-import React, { useEffect } from "react";
-import {
-  AppBar,
-  Toolbar,
-  Button,
-  Box,
-  CircularProgress,
-  List,
-  ListItem,
-  ListItemText,
-  Typography,
-  Paper,
-  Container,
-  Avatar,
-  Grid,
-} from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { getAllUsers } from "../features/admindata/adminSlice";
-import { logoutUser } from "../features/user/userSlice";
+import React, { useState } from "react";
+import { Box, useTheme, useMediaQuery } from "@mui/material";
+import UserList from "../components/chat/UserList";
+import ChatLayout from "../layouts/ChatLayout";
 
 const AdminHomePage = () => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { users, loading, error, message, admin } = useSelector(
-    (state) => state.admin
-  );
+  const [selectedUser, setSelectedUser] = useState(null);
 
-  useEffect(() => {
-    dispatch(getAllUsers());
-  }, [dispatch]);
+  const theme = useTheme();
+  const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
 
-  // Logout handler
-  const handleLogout = () => {
-    dispatch(logoutUser());
-    navigate("/login");
+  const handleUserSelect = (user) => {
+    setSelectedUser(user);
   };
 
-  // Navigate to user-specific chat page
-  const handleUserClick = (username) => {
-    navigate(`/user/${username}`);
-  };
-
-  if (loading) {
+  if (isDesktop) {
     return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        height="100vh"
-        bgcolor="secondary.main"
-      >
-        <CircularProgress />
+      <Box sx={{ display: "flex", height: "100vh" }}>
+        <Box sx={{ width: "30%", minWidth: 300 }}> 
+          <UserList onUserSelect={handleUserSelect} />
+        </Box>
+
+        <Box sx={{ flex: 1 }}>
+          {selectedUser ? (
+            <ChatLayout selectedUser={selectedUser} />
+          ) : (
+            <Box
+              sx={{
+                height: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <h3>Select a user to start chatting</h3>
+            </Box>
+          )}
+        </Box>
       </Box>
     );
   }
 
-  if (error) {
+  if (!selectedUser) {
     return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        height="100vh"
-        bgcolor="secondary.main"
-      >
-        <Typography variant="h6" color="error">
-          {error}
-        </Typography>
+      <Box sx={{ height: "100vh" }}>
+        <UserList onUserSelect={handleUserSelect} />
       </Box>
     );
   }
 
   return (
-    <Box
-      sx={{
-        bgcolor: "secondary.main",
-        minHeight: "100vh",
-      }}
-    >
-      {/* Header with Logout Button */}
-      <AppBar position="static" sx={{ bgcolor: "primary.main" }}>
-        <Toolbar>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Admin Dashboard
-          </Typography>
-          <Button
-            color="inherit"
-            onClick={handleLogout}
-            sx={{
-              fontWeight: "bold",
-              borderRadius: 2,
-              "&:hover": {
-                bgcolor: "primary.light",
-              },
-            }}
-          >
-            Logout
-          </Button>
-        </Toolbar>
-      </AppBar>
-
-      {/* Dashboard Content */}
-      <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Typography
-          variant="h4"
-          color="primary"
-          gutterBottom
-          textAlign="center"
-          sx={{ fontWeight: "bold" }}
-        >
-          {message}
-        </Typography>
-        {admin ? (
-          <Paper
-            elevation={6}
-            sx={{
-              p: 3,
-              borderRadius: 3,
-              bgcolor: "background.default",
-              boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.1)",
-            }}
-          >
-            <List sx={{ maxHeight: "70vh", overflowY: "auto" }}>
-              {users.map((user, index) => (
-                <ListItem
-                  key={index}
-                  // button
-                  onClick={() => handleUserClick(user.username)}
-                  sx={{
-                    mb: 2,
-                    bgcolor: "primary.light",
-                    borderRadius: 2,
-                    "&:hover": {
-                      bgcolor: "primary.dark",
-                      color: "white",
-                    },
-                  }}
-                >
-                  <Avatar
-                    sx={{
-                      mr: 2,
-                      bgcolor: "primary.main",
-                      color: "white",
-                    }}
-                  >
-                    {user.username.charAt(0).toUpperCase()}
-                  </Avatar>
-                  <ListItemText
-                    primary={
-                      <Typography variant="subtitle1" fontWeight="bold">
-                        {user.username}
-                      </Typography>
-                    }
-                    secondary={`Role: ${user.role}`}
-                  />
-                </ListItem>
-              ))}
-            </List>
-          </Paper>
-        ) : (
-          <Typography variant="h6" color="error" textAlign="center">
-            Access Denied: Admin Privileges Required
-          </Typography>
-        )}
-      </Container>
+    <Box sx={{ height: "100vh" }}>
+      <ChatLayout selectedUser={selectedUser} onBack={() => setSelectedUser(null)} />
     </Box>
   );
 };
