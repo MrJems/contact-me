@@ -22,7 +22,7 @@ import { connectWithSocketServer } from "./socketCommunication/socketConnection"
 
 function App() {
   const dispatch = useDispatch();
-  const {token, anonymousId } = useSelector((state) => state.user);
+  const {token, anonymousId, userInfo } = useSelector((state) => state.user);
   const [initialDataLoaded, setInitialDataLoaded] = useState(false);
   const [socketInitialized, setSocketInitialized] = useState(false);
   const [error, setError] = useState();
@@ -55,7 +55,7 @@ function App() {
   useEffect(() => {
     if (!error && initialDataLoaded && !socketInitialized) {
       if ((token && !anonymousId) || (!token && anonymousId)) {
-        connectWithSocketServer({ token, anonymousId });
+        connectWithSocketServer({ token, anonymousId, userInfo }, dispatch);
         setSocketInitialized(true);
       }
     }

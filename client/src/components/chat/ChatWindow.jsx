@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Box, Typography } from '@mui/material';
 import MessageBubble from './MessageBubble';
 import MessageInput from './MessageInput';
+import {sendDirectMessage} from '../../socketCommunication/socketConnection';
+
 
 const mockMessages = [
   { id: 1, sender: 'admin', text: 'Hello, how ca I help you?' },
@@ -15,10 +17,16 @@ const ChatWindow = ({ user }) => {
   const handleSendMessage = (text) => {
     const newMessage = {
       id: Date.now(),
+      reciver: 
       sender: user ? user.username : 'user',
       text,
     };
-    setMessages([...messages, newMessage]);
+console.log("newmeasdfe ", newMessage);
+if(text.length > 0){
+  sendDirectMessage(newMessage)
+}
+    
+    // setMessages([...messages, newMessage]);
   };
 
   return (

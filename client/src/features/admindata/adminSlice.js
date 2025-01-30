@@ -21,10 +21,15 @@ const adminSlice = createSlice({
     message: "",
     admin: false,
     users: [],
+    onlineUsers: [],
     loading: false,
     error: null,
   },
-  reducers: {},
+  reducers: {
+    setOnlineUsers: (state, action) => {
+      state.onlineUsers = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(getAllUsers.pending, (state) => {
@@ -43,5 +48,7 @@ const adminSlice = createSlice({
       });
   },
 });
+
+export const { setOnlineUsers } = adminSlice.actions;
 
 export default adminSlice.reducer;

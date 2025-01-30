@@ -8,6 +8,7 @@ import {
   Typography,
   CircularProgress,
   Avatar,
+  Badge,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useDispatch, useSelector } from "react-redux";
@@ -27,7 +28,7 @@ const SearchBar = styled(TextField)(({ theme }) => ({
 
 function UserList({ onUserSelect }) {
   const dispatch = useDispatch();
-  const { users, loading, error } = useSelector((state) => state.admin);
+  const { users, loading, error, onlineUsers  } = useSelector((state) => state.admin);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUserId, setSelectedUserId] = useState(null);
@@ -78,7 +79,7 @@ function UserList({ onUserSelect }) {
   );
 
   const handleClickUser = (user) => {
-    const userId = user._id || user.username; 
+    const userId = user._id || user.username;
     setSelectedUserId(userId);
 
     if (onUserSelect) {
@@ -101,6 +102,11 @@ function UserList({ onUserSelect }) {
           const userId = user._id || user.username;
           const isSelected = selectedUserId === userId;
 
+          const isOnline = onlineUsers.some(
+            (onlineUser) => onlineUser.userId  === userId
+          );
+          const unreadCount = user.unreadCount ?? 0;
+
           return (
             <ListItemButton
               key={userId}
@@ -117,11 +123,29 @@ function UserList({ onUserSelect }) {
                 },
               })}
             >
-              <Avatar sx={{ marginRight: 1 }}>
-                {user.username.charAt(0).toUpperCase()}
-              </Avatar>
+              <Badge
+                badgeContent={unreadCount > 0 ? unreadCount : 0}
+                color="error"
+                max={99}
+                invisible={unreadCount === 0}
+                overlap="circular"
+                anchorOrigin={{ vertical: "top", horizontal: "right" }}
+              >
+                <Badge
+                  variant="dot"
+                  color="success"
+                  overlap="circular"
+                  invisible={!isOnline}
+                  anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                >
+                  <Avatar>
+                    {user.username.charAt(0).toUpperCase()}
+                  </Avatar>
+                </Badge>
+              </Badge>
 
               <ListItemText
+                sx={{ marginLeft: 1 }}
                 primary={user.username}
                 secondary={user.role ? `Role: ${user.role}` : null}
               />
