@@ -1,7 +1,13 @@
 const authSocket = require("./middleware/authSocket");
 const newConnectionHandler = require("./socketHandlers/newConnectionHandler");
 const disconnectHandler = require("./socketHandlers/disconnectHandler");
-const { getActiveConnections, getOnlineUsers } = require("./utils/socketStore");
+const {
+  getActiveConnections,
+  getOnlineUsers,
+  setSocketServerInstance,
+} = require("./utils/socketStore");
+const sendMessageHandler = require("./socketHandlers/sendMessageHandler");
+const chatHistoryHandler = require("./socketHandlers/chatHistoryHandler");
 
 const registerSocketServer = (server) => {
   const io = require("socket.io")(server, {
@@ -10,6 +16,8 @@ const registerSocketServer = (server) => {
       methods: ["GET", "POST"],
     },
   });
+
+  setSocketServerInstance(io);
 
   io.use((socket, next) => {
     authSocket(socket, next);
@@ -32,6 +40,14 @@ const registerSocketServer = (server) => {
     newConnectionHandler(socket, io);
     emitOnlineUsers();
     console.log("getOnlineUsers users ", getOnlineUsers());
+
+    socket.on("send-message", (data) => {
+      sendMessageHandler(socket, data);
+    });
+
+    socket.on("chat-history", (data) => {
+      chatHistoryHandler(socket, data);
+    });
     socket.on("disconnect", () => {
       disconnectHandler(socket);
     });

@@ -1,85 +1,90 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useRef, useEffect, useMemo } from "react";
 import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import ChatHeader from "../components/chat/ChatHeader";
 import ChatInput from "../components/ui/ChatInput";
 import MessageBubble from "../components/chat/MessageBubble";
+import {
+  sendDirectMessage,
+  getChatHistory,
+} from "../socketCommunication/socketConnection";
+import { setChosenChatUser } from "../features/chat/chatSlice";
 
-/** 
- * Outer container: flex column, fills parent's height, 
- * so the header is pinned at the top and the input can be pinned at the bottom.
- */
 const ChatContainer = styled(Box)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
-  height: "100%", // must fill parent's height
+  height: "100%",
   border: `1px solid ${theme.palette.grey[300]}`,
 }));
 
-/** 
- * The middle area that holds messages and scrolls. 
- * "flex: 1" means it expands to fill available space between header & input.
- */
 const MessagesWrapper = styled(Box)(({ theme }) => ({
   flex: 1,
   overflowY: "auto",
-  // optional padding for spacing:
   padding: theme.spacing(2),
 }));
 
+const transformMessages = (data, userInfo) => {
+  if (!data) return [];
+  return data.map((msg, index) => ({
+    id: (index + 1).toString(),
+    text: msg.content,
+    sender: msg.author.username === userInfo?.username ? "me" : "other",
+  }));
+};
+
 function ChatPage({ selectedUser }) {
-  // 1) We'll pull userInfo from Redux
+  const dispatch = useDispatch();
   const { userInfo } = useSelector((state) => state.user);
+  const { messages } = useSelector((state) => state.chat);
 
-  // 2) Determine the username to display in the header
-  const username = selectedUser?.username || userInfo?.username || "Unknown User";
+  const username = selectedUser?.username || "admin";
 
-  // 3) Example local messages
-  const [messages, setMessages] = useState([
-    { id: "1", text: "Hello!", sender: "other" },
-    { id: "2", text: "Hi, how are you?", sender: "me" },
-  ]);
-
-  // 4) A ref for auto-scrolling to the last message
   const messagesEndRef = useRef(null);
 
-  // 5) Scroll to bottom whenever messages change
+  useEffect(() => {
+    if (username && userInfo?.username) {
+      dispatch(setChosenChatUser(username));
+      getChatHistory({
+        reciver: username, 
+        sender: userInfo.username,
+      });
+    }
+  }, [username, userInfo, dispatch]);
+
+  const formattedMessages = useMemo(() => {
+    return transformMessages(messages, userInfo);
+  }, [messages, userInfo]);
+
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages]);
+  }, [formattedMessages]);
 
-  // 6) Handle sending a new message
   const handleSend = (text) => {
-    const newMessage = {
-      id: String(Date.now()),
+    if (!text.trim()) return; 
+    
+    sendDirectMessage({
+      reciver: username,
+      sender: userInfo?.username,
       text,
-      sender: "me",
-    };
-    setMessages((prev) => [...prev, newMessage]);
+    });
   };
 
   return (
     <ChatContainer>
-      {/* HEADER: pinned at the top */}
-      <ChatHeader username={username} />
-
-      {/* MESSAGES + SCROLL AREA */}
+      <ChatHeader username={username == "admin"? "Telar Karan": username} />
       <MessagesWrapper>
-        {messages.map((m) => (
+        {formattedMessages.map((m) => (
           <MessageBubble
             key={m.id}
             text={m.text}
             isSentByMe={m.sender === "me"}
           />
         ))}
-        {/* A dummy div that we scroll into view to ensure latest message is visible */}
         <div ref={messagesEndRef} />
       </MessagesWrapper>
-
-      {/* INPUT: pinned at the bottom (below the scrollable messages) */}
       <ChatInput onSend={handleSend} />
     </ChatContainer>
   );

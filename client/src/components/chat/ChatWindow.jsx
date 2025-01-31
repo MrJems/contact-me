@@ -17,7 +17,7 @@ const ChatWindow = ({ user }) => {
   const handleSendMessage = (text) => {
     const newMessage = {
       id: Date.now(),
-      reciver: 
+      reciver: "admin",
       sender: user ? user.username : 'user',
       text,
     };

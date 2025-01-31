@@ -1,6 +1,6 @@
 import io from "socket.io-client";
 import { setOnlineUsers } from "../features/admindata/adminSlice";
-import { data } from "react-router-dom";
+import { setMessages } from "../features/chat/chatSlice";
 
 let socket = null;
 
@@ -20,8 +20,28 @@ export const connectWithSocketServer = (userData, dispatch) => {
     console.log("online users ", data);
     dispatch(setOnlineUsers(data));
   });
+
+  socket.on("chat-history", (data) => {
+    dispatch(setMessages(data.messages));
+    console.log("the chat history data : ", data);
+  });
 };
 
 export const sendDirectMessage = (data) => {
-  socket.emit("direct-message", data);
+  if (!socket) {
+    console.error("Socket is not connected. Cannot send message.");
+    return;
+  }
+
+  console.log("Sending direct message:", data);
+  socket.emit("send-message", data);
+};
+
+export const getChatHistory = (data) => {
+  if (!socket) {
+    console.error("Socket is not connected. Cannot send message.");
+    return;
+  }
+  console.log(">........");
+  socket.emit("chat-history", data);
 };
