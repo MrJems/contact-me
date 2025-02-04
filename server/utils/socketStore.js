@@ -23,7 +23,7 @@ const removeConnectedUser = (socketId) => {
 const getActiveConnections = (username) => {
   const activeConnections = [];
   connectedUsers.forEach((value, key) => {
-    if (value.userData.userInfo?.username === username) {
+    if (value.userName === username) {
       activeConnections.push(key);
     }
   });
@@ -36,7 +36,7 @@ const getOnlineUsers = () => {
   connectedUsers.forEach((value, key) => {
     onlineUsers.push({
       socketId: key,
-      userId: value.userData.userInfo?.username,
+      userId: value.userName,
     });
   });
   return onlineUsers;

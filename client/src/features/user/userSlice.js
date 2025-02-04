@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { registerUserApi, loginUserApi } from "../../api/authApi";
 import { v4 as uuidv4 } from "uuid";
+import { disconnectSocketServer } from "../../socketCommunication/socketConnection";
 
 export const registerUser = createAsyncThunk(
   "user/register",
@@ -34,6 +35,7 @@ const userSlice = createSlice({
     anonymousId: null,
     loading: false,
     error: null,
+    socketConnected: false,
   },
   reducers: {
     setAnonymousId: (state, action) => {
@@ -51,11 +53,15 @@ const userSlice = createSlice({
     setUserInfo: (state, action) => {
       state.userInfo = action.payload;
     },
+    setSocketConnected: (state, action) => {
+      state.socketConnected = action.payload;
+    },
     logoutUser: (state) => {
       state.userInfo = null;
       state.token = null;
       state.anonymousId = null;
       localStorage.clear();
+      disconnectSocketServer();
     },
   },
   extraReducers: (builder) => {
@@ -85,6 +91,7 @@ const userSlice = createSlice({
         state.token = action.payload.token;
         localStorage.clear();
         localStorage.setItem("token", action.payload.token);
+        disconnectSocketServer();
         state.anonymousId = null;
       })
       .addCase(loginUser.rejected, (state, action) => {
@@ -101,6 +108,7 @@ export const {
   removeToken,
   logoutUser,
   setUserInfo,
+  setSocketConnected,
 } = userSlice.actions;
 export default userSlice.reducer;
 

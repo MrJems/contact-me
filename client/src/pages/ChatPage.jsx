@@ -35,7 +35,7 @@ const transformMessages = (data, userInfo) => {
 
 function ChatPage({ selectedUser }) {
   const dispatch = useDispatch();
-  const { userInfo } = useSelector((state) => state.user);
+  const { userInfo, socketConnected  } = useSelector((state) => state.user);
   const { messages } = useSelector((state) => state.chat);
 
   const username = selectedUser?.username || "admin";
@@ -43,14 +43,17 @@ function ChatPage({ selectedUser }) {
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
-    if (username && userInfo?.username) {
+    if (username && userInfo?.username && socketConnected) {
+
+      console.log("ooooooooooooooo userInfo",userInfo)
       dispatch(setChosenChatUser(username));
       getChatHistory({
-        reciver: username, 
+        reciver: username,
         sender: userInfo.username,
+        senderId: userInfo.userID
       });
     }
-  }, [username, userInfo, dispatch]);
+  }, [username, userInfo, socketConnected, dispatch]);
 
   const formattedMessages = useMemo(() => {
     return transformMessages(messages, userInfo);
@@ -74,7 +77,7 @@ function ChatPage({ selectedUser }) {
 
   return (
     <ChatContainer>
-      <ChatHeader username={username == "admin"? "Telar Karan": username} />
+      <ChatHeader username={username} />
       <MessagesWrapper>
         {formattedMessages.map((m) => (
           <MessageBubble

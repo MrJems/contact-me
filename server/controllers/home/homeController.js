@@ -16,6 +16,7 @@ const homeController = async (req, res) => {
         return res.status(200).json({
           message: "Welcome Back",
           userInfo: {
+            userID: existingAnonymousUser._id,
             username: existingAnonymousUser.username,
             role: existingAnonymousUser.role,
           },
@@ -26,6 +27,7 @@ const homeController = async (req, res) => {
         return res.status(200).json({
           message: "Welcome Back",
           userInfo: {
+            userID: newAnonymousUser._id,
             username: newAnonymousUser.username,
             role: newAnonymousUser.role,
           },
@@ -58,6 +60,7 @@ const homeController = async (req, res) => {
       return res.status(200).json({
         message: "welcome user",
         userInfo: {
+          userID: user._id,
           username: user.username,
           role: user.role,
         },
@@ -68,6 +71,7 @@ const homeController = async (req, res) => {
       return res.status(200).json({
         message: "welcome admin",
         userInfo: {
+          userID: user._id,
           username: user.username,
           role: user.role,
         },

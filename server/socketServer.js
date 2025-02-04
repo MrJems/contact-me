@@ -1,6 +1,9 @@
 const authSocket = require("./middleware/authSocket");
 const newConnectionHandler = require("./socketHandlers/newConnectionHandler");
 const disconnectHandler = require("./socketHandlers/disconnectHandler");
+const callHandler = require("./socketHandlers/callHandler");
+const callEndHandler = require("./socketHandlers/callEndHandler");
+
 const {
   getActiveConnections,
   getOnlineUsers,
@@ -39,7 +42,6 @@ const registerSocketServer = (server) => {
 
     newConnectionHandler(socket, io);
     emitOnlineUsers();
-    console.log("getOnlineUsers users ", getOnlineUsers());
 
     socket.on("send-message", (data) => {
       sendMessageHandler(socket, data);
@@ -48,6 +50,29 @@ const registerSocketServer = (server) => {
     socket.on("chat-history", (data) => {
       chatHistoryHandler(socket, data);
     });
+
+    socket.on("initiate-call", (data) => {
+      console.log("callllll data ", data);
+      callHandler(socket, io, data);
+    });
+
+    socket.on("answer-call", (callData) => {
+      // Mark the call as answered in your system
+      // Possibly notify the other side:
+      // io.to(theCallerSocket).emit("call-answered", { ... });
+    });
+
+    socket.on("reject-call", (callData) => {
+      // Mark the call as rejected
+      // Possibly emit "call-ended" to the caller
+      // callEndHandler(socket, io, callData);
+    });
+
+    socket.on("end-call", (data) => {
+      console.log("callllll data ", data);
+      callEndHandler(socket, io, data);
+    });
+
     socket.on("disconnect", () => {
       disconnectHandler(socket);
     });
@@ -55,7 +80,8 @@ const registerSocketServer = (server) => {
 
   setInterval(() => {
     emitOnlineUsers();
-  }, [5000]);
+    console.log("getOnlineUsers users ", getOnlineUsers());
+  }, 5000);
 };
 
 module.exports = {

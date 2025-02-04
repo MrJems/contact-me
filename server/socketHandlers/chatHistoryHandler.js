@@ -5,20 +5,20 @@ const User = require("../models/user");
 
 const chatHistoryHandler = async (Socket, data) => {
   try {
-    const { reciver, sender } = data;
+    const { reciver, senderId } = data;
 
-    const senderUser = await User.findOne({ username: sender });
-    if (!senderUser) {
-      console.error("Sender not found:", sender);
-      return;
-    }
+    // const senderUser = await User.findOne({ username: sender });
+    // if (!senderUser) {
+    //   console.error("Sender not found:", sender);
+    //   return;
+    // }
     const reciverUser = await User.findOne({ username: reciver });
     if (!reciverUser) {
       console.error("reciverUser not found:", reciver);
       return;
     }
     const conversation = await Conversation.findOne({
-      participants: { $all: [reciverUser._id, senderUser._id] },
+      participants: { $all: [reciverUser._id, senderId] },
     });
 
     if (conversation) {

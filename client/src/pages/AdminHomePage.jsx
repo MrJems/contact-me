@@ -16,7 +16,7 @@ const AdminHomePage = () => {
   if (isDesktop) {
     return (
       <Box sx={{ display: "flex", height: "100vh" }}>
-        <Box sx={{ width: "30%", minWidth: 300 }}> 
+        <Box sx={{ width: "25%", minWidth: 300 }}> 
           <UserList onUserSelect={handleUserSelect} />
         </Box>
 
