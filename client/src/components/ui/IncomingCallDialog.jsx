@@ -12,21 +12,20 @@ import {
 import { styled } from "@mui/material/styles";
 import PhoneInTalkIcon from "@mui/icons-material/PhoneInTalk";
 import { answerCall, rejectCall } from "../../socketCommunication/socketConnection";
+import { useDispatch, useSelector } from "react-redux";
+import {clearIncomingCall, setCallAccepted} from "../../features/call/callSlice";
 
 
-// 1. Slide-down transition component
 const Transition = forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
 
-// 2. Create a pulsing Avatar using keyframes
 const RingingAvatar = styled(Avatar)(({ theme }) => ({
   backgroundColor: theme.palette.error.main,
   color: "#fff",
   width: theme.spacing(8),
   height: theme.spacing(8),
   margin: "0 auto",
-  // Start with no "ring"
   boxShadow: `0 0 0 0 ${theme.palette.error.main}`,
   animation: "pulseRing 1.5s infinite",
   "@keyframes pulseRing": {
@@ -48,24 +47,29 @@ const RingingAvatar = styled(Avatar)(({ theme }) => ({
 function IncomingCallDialog({
   open,
   onClose,
-  callerName = "John Doe",
+  callerName = "Unknown",
 }) {
 
+const dispatch = useDispatch();
+const { userInfo} = useSelector(state => state.user);
 
   const handleAnswer = () => {
-    // 1. Emit socket event to server
+    const callData = {
+      senderInfo : userInfo,
+      reciver: callerName
+    }
     answerCall(callData);
-
-    // 2. Optionally close dialog immediately
-    //    or wait for server to confirm call started
-    dispatch(clearIncomingCall());
+    dispatch(setCallAccepted());
   };
 
   const handleReject = () => {
-    // 1. Emit socket event to server
+    console.log("Entered Hanfle reject")
+    const callData = {
+      senderInfo : userInfo,
+      reciver: callerName
+    }
     rejectCall(callData);
 
-    // 2. Close dialog
     dispatch(clearIncomingCall());
   };
 

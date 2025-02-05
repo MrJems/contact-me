@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   Box, 
   Avatar, 
@@ -6,19 +6,23 @@ import {
   IconButton, 
   Menu, 
   MenuItem,
-  CircularProgress 
+  CircularProgress,
+  Fade
 } from "@mui/material";
 import { 
   Videocam, 
   Call, 
   MoreVert,
-  CallEnd 
+  CallEnd,
+  PhoneInTalk 
 } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import { logoutUser } from "../../features/user/userSlice";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {initiateCall, endCall} from "../../socketCommunication/socketConnection";
+import { setCallStatus } from "../../features/call/callSlice";
+
 
 
 const HeaderContainer = styled(Box)(({ theme }) => ({
@@ -51,14 +55,26 @@ function ChatHeader({ username }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { userInfo} = useSelector(state => state.user);
+  const { callStatus, incomingCallData, outgoingCallData } = useSelector((state) => state.call);
 
-  // STATE to handle menu
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
-  // STATE to handle call
-  const [isCalling, setIsCalling] = useState(false);
 
+  const [fadeOut, setFadeOut] = useState(false);
+
+  useEffect(() => {
+    if (callStatus === "rejected") {
+      setFadeOut(true);
+
+      const timer = setTimeout(() => {
+        dispatch(setCallStatus("idle"));
+        setFadeOut(false);
+      }, 10);
+
+      return () => clearTimeout(timer);
+    }
+  }, [callStatus, dispatch]);
   // Menu handlers
   const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
   const handleMenuClose = () => setAnchorEl(null);
@@ -79,14 +95,12 @@ function ChatHeader({ username }) {
     navigate("/login");
   };
 
-  // Call handlers
   const handleCall = () => {
     const callData = {
       senderInfo : userInfo,
       reciver: username
     }
-    initiateCall(callData)
-    setIsCalling(true);
+    initiateCall(callData, dispatch)
   };
 
   const handleEndCall = () => {
@@ -94,37 +108,51 @@ function ChatHeader({ username }) {
       senderInfo : userInfo,
       reciver: username
     }
-    endCall(callData)
-    setIsCalling(false);
+    endCall(callData, dispatch)
   };
-
-  // If a call is in progress, show a "calling" sub-header
-  if (isCalling) {
+  if (callStatus === "outgoing" || callStatus === "rejected") {
     return (
-      <HeaderContainer
-        sx={{
-          // Example rose-red background
-          backgroundColor: "#D81B60", 
-          color: "white",
-        }}
-      >
-        {/* Left: small “Ringing” indicator with spinner */}
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <CircularProgress color="inherit" size={24} />
-          <Typography variant="subtitle1">
-            Calling {username || "User"}...
-          </Typography>
-        </Box>
+      <Fade in={!fadeOut} timeout={500}>
+        <HeaderContainer sx={{ backgroundColor: "#D81B60", color: "white" }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <CircularProgress color="inherit" size={24} />
+            <Typography variant="subtitle1">
+              {callStatus === "outgoing"
+                ? `Calling ${outgoingCallData.reciver || "User"}...`
+                : "Call Rejected..."}
+            </Typography>
+          </Box>
 
-        {/* Right: End call button */}
-        <IconButton color="inherit" onClick={handleEndCall}>
-          <CallEnd />
-        </IconButton>
-      </HeaderContainer>
+          {callStatus === "outgoing" && (
+            <IconButton color="inherit" onClick={handleEndCall}>
+              <CallEnd />
+            </IconButton>
+          )}
+        </HeaderContainer>
+      </Fade>
     );
   }
 
-  // Otherwise, show the normal header UI
+  if (callStatus === "accepted") {
+    return (
+      <HeaderContainer sx={{ backgroundColor: "#4CAF50", color: "#fff" }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        <PhoneInTalk />
+        <Typography variant="subtitle1">
+          In call with <strong>{incomingCallData?.userName || "admin"}</strong>
+        </Typography>
+      </Box>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        
+        <IconButton color="inherit" onClick={handleEndCall}>
+          <CallEnd />
+        </IconButton>
+      </Box>
+    </HeaderContainer>
+
+    );
+  }
+
   return (
     <HeaderContainer>
       <LeftSection>

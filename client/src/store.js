@@ -11,4 +11,8 @@ export const store = configureStore({
     chat: chatReducer,
     call: callReducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }),
 });

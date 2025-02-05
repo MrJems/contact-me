@@ -1,4 +1,7 @@
 import  { clearIncomingCall } from './features/call/callSlice'
+
+import FloatingWindow from './components/ui/FloatingWindow';
+
 import React, { useEffect, useState } from "react";
 import ErrorScreen from "./components/ui/ErrorScreen";
 import LoadingScreen from "./components/ui/LoadingScreen";
@@ -23,7 +26,7 @@ function App() {
   const [initialDataLoaded, setInitialDataLoaded] = useState(false);
   const [error, setError] = useState(null);
   // const [showIncomingCallPopup, setShowIncomingCallPopup] = useState(false);
-  const { incomingCallData, showIncomingDialog } = useSelector((state) => state.call);
+  const { callStatus, incomingCallData, showIncomingDialog } = useSelector((state) => state.call);
 
   useEffect(() => {
     dispatch(initializeApp());
@@ -48,13 +51,6 @@ function App() {
     initializeAppData();
   }, [dispatch, token, anonymousId]);
 
-  // useEffect(() => {
-  //   const handleDoubleClick = () => setShowIncomingCallPopup(true);
-  //   window.addEventListener("dblclick", handleDoubleClick);
-  //   return () => window.removeEventListener("dblclick", handleDoubleClick);
-  // }, []);
-
-  // const handleCloseIncomingCall = () => setShowIncomingCallPopup(false);
   const handleCloseIncomingCall = () => {
     dispatch(clearIncomingCall());
   };
@@ -83,6 +79,8 @@ function App() {
         onClose={handleCloseIncomingCall}
         callerName={incomingCallData?.userName}
       />
+{callStatus == "accepted" && <FloatingWindow callType="video" />}
+
     </>
   );
 }

@@ -3,6 +3,8 @@ const newConnectionHandler = require("./socketHandlers/newConnectionHandler");
 const disconnectHandler = require("./socketHandlers/disconnectHandler");
 const callHandler = require("./socketHandlers/callHandler");
 const callEndHandler = require("./socketHandlers/callEndHandler");
+const callRejectHandler = require("./socketHandlers/callRejectHandler");
+const callAnswerHandler = require("./socketHandlers/callAnswerHandler");
 
 const {
   getActiveConnections,
@@ -56,13 +58,15 @@ const registerSocketServer = (server) => {
       callHandler(socket, io, data);
     });
 
-    socket.on("answer-call", (callData) => {
+    socket.on("answer-call", (data) => {
+      callAnswerHandler(socket, io, data);
       // Mark the call as answered in your system
       // Possibly notify the other side:
       // io.to(theCallerSocket).emit("call-answered", { ... });
     });
 
-    socket.on("reject-call", (callData) => {
+    socket.on("reject-call", (data) => {
+      callRejectHandler(socket, io, data);
       // Mark the call as rejected
       // Possibly emit "call-ended" to the caller
       // callEndHandler(socket, io, callData);

@@ -2,7 +2,14 @@ import io from "socket.io-client";
 import { setOnlineUsers } from "../features/admindata/adminSlice";
 import { setMessages } from "../features/chat/chatSlice";
 import { setSocketConnected } from "../features/user/userSlice";
-import { setIncomingCall, clearIncomingCall } from "../features/call/callSlice";
+import {
+  setIncomingCall,
+  clearIncomingCall,
+  setCallRejected,
+  startOutgoingCall,
+  endOutgoingCall,
+  setCallAccepted,
+} from "../features/call/callSlice";
 
 let socket = null;
 
@@ -35,6 +42,9 @@ export const connectWithSocketServer = (userData, dispatch) => {
   });
 
   socket.on("answer-call", (callData) => {
+    console.log("answe came : ", callData);
+    dispatch(setCallAccepted());
+
     // Mark the call as answered in your system
     // Possibly notify the other side:
     // io.to(theCallerSocket).emit("call-answered", { ... });
@@ -43,6 +53,8 @@ export const connectWithSocketServer = (userData, dispatch) => {
   socket.on("reject-call", (callData) => {
     // Mark the call as rejected
     // Possibly emit "call-ended" to the caller
+    dispatch(setCallRejected());
+    console.log("call rejected data: ", callData);
   });
 
   socket.on("call-ended", () => {
@@ -71,11 +83,13 @@ export const getChatHistory = (data) => {
   socket.emit("chat-history", data);
 };
 
-export const initiateCall = (data) => {
+export const initiateCall = (data, dispatch) => {
   if (!socket) {
     console.error("Socket is not connected. Cannot start call.");
     return;
   }
+  dispatch(startOutgoingCall(data));
+
   socket.emit("initiate-call", data);
 };
 
@@ -91,8 +105,10 @@ export const rejectCall = (callData) => {
   console.log("Rejected call with data:", callData);
 };
 
-export const endCall = (data) => {
+export const endCall = (data, dispatch) => {
   if (!socket) return console.error("Socket is not connected");
+
+  dispatch(endOutgoingCall());
   socket.emit("end-call", data);
   console.log("Ended call");
 };
