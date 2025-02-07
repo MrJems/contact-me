@@ -22,7 +22,7 @@ import {
 let socket = null;
 
 export const connectWithSocketServer = (userData, dispatch) => {
-  socket = io("http://localhost:3000", {
+  socket = io("https://contact-me-jjnm.onrender.com/", {
     auth: {
       userData,
     },
