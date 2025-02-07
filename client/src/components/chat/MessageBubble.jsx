@@ -23,7 +23,6 @@ const Bubble = styled(Box, {
 
 
 function MessageBubble({ text, isSentByMe }) {
-  console.log("text ", text)
   return (
     <BubbleContainer isSentByMe={isSentByMe}>
       <Bubble isSentByMe={isSentByMe}>

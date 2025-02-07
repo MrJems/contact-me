@@ -10,6 +10,14 @@ import {
   endOutgoingCall,
   setCallAccepted,
 } from "../features/call/callSlice";
+import {
+  getLocalStream,
+  createPeerConnection,
+  sendWebRTCOffer,
+  handleWebRTCOffer,
+  handleWebRTCAnswer,
+  handleWebRTCCandidate,
+} from "./webRTCHandler";
 
 let socket = null;
 
@@ -41,10 +49,13 @@ export const connectWithSocketServer = (userData, dispatch) => {
     dispatch(setIncomingCall(data));
   });
 
-  socket.on("answer-call", (callData) => {
-    console.log("answe came : ", callData);
+  socket.on("answer-call", async (callData) => {
+    console.log("answe came xyz: ", callData);
+    const onlyAudio = callData.type == "audio" ? true : false;
+    await getLocalStream(dispatch, onlyAudio);
+    createPeerConnection(dispatch, callData.userName);
     dispatch(setCallAccepted());
-
+    sendWebRTCOffer(callData);
     // Mark the call as answered in your system
     // Possibly notify the other side:
     // io.to(theCallerSocket).emit("call-answered", { ... });
@@ -60,6 +71,22 @@ export const connectWithSocketServer = (userData, dispatch) => {
   socket.on("call-ended", () => {
     console.log("Call ended by the other side or server");
     dispatch(clearIncomingCall());
+  });
+
+  socket.on("webRTC-signaling", (data) => {
+    console.log("inside wenrtc signaling : ", data);
+    switch (data.type) {
+      case "OFFER":
+        handleWebRTCOffer(data);
+        break;
+      case "ANSWER":
+        handleWebRTCAnswer(data);
+        break;
+      case "ICE_CANDIDATE":
+        handleWebRTCCandidate(data);
+      default:
+        return;
+    }
   });
 };
 
@@ -111,6 +138,11 @@ export const endCall = (data, dispatch) => {
   dispatch(endOutgoingCall());
   socket.emit("end-call", data);
   console.log("Ended call");
+};
+
+export const sendWebRTCSignalingData = (data) => {
+  if (!socket) return console.error("Socket is not connected");
+  socket.emit("webRTC-signaling", data);
 };
 
 export const disconnectSocketServer = () => {

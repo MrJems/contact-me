@@ -5,6 +5,7 @@ const callHandler = require("./socketHandlers/callHandler");
 const callEndHandler = require("./socketHandlers/callEndHandler");
 const callRejectHandler = require("./socketHandlers/callRejectHandler");
 const callAnswerHandler = require("./socketHandlers/callAnswerHandler");
+const sendWebRtcSignalingDataHandler = require("./socketHandlers/sendWebRTCSignalingDataHandler");
 
 const {
   getActiveConnections,
@@ -77,6 +78,10 @@ const registerSocketServer = (server) => {
       callEndHandler(socket, io, data);
     });
 
+    socket.on("webRTC-signaling", (data) => {
+      console.log("webrtc signaling data : ", data);
+      sendWebRtcSignalingDataHandler(socket, io, data);
+    });
     socket.on("disconnect", () => {
       disconnectHandler(socket);
     });

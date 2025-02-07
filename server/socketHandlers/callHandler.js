@@ -3,6 +3,7 @@ const User = require("../models/user");
 
 const callHandler = async (socket, io, data) => {
   const userDetails = socket.data.user;
+  userDetails.type = data.type;
   const reciver = data.reciver;
   console.log("dddaataa ", data);
   const reciverUser = await User.findOne({ username: reciver });

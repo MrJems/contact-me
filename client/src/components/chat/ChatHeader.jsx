@@ -21,7 +21,7 @@ import { logoutUser } from "../../features/user/userSlice";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {initiateCall, endCall} from "../../socketCommunication/socketConnection";
-import { setCallStatus } from "../../features/call/callSlice";
+import { setCallStatus, setLocalStream } from "../../features/call/callSlice";
 
 
 
@@ -55,7 +55,7 @@ function ChatHeader({ username }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { userInfo} = useSelector(state => state.user);
-  const { callStatus, incomingCallData, outgoingCallData } = useSelector((state) => state.call);
+  const { callStatus, incomingCallData, outgoingCallData, localStream } = useSelector((state) => state.call);
 
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -74,8 +74,36 @@ function ChatHeader({ username }) {
 
       return () => clearTimeout(timer);
     }
-  }, [callStatus, dispatch]);
-  // Menu handlers
+
+    if(callStatus === "idle") {
+
+      if(localStream) {
+           localStream.getTracks().forEach(track => track.stop())
+           dispatch(setLocalStream(null))
+          }
+     }
+  
+     
+  }, [callStatus, localStream,  dispatch]);
+
+  useEffect(() => {
+    let timer;
+    if (callStatus === "outgoing") {
+      timer = setTimeout(() => {
+        if (callStatus === "outgoing") {
+          handleEndCall();
+        }
+      }, 60000);
+    }
+
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
+  }, [callStatus]);
+
+
   const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
   const handleMenuClose = () => setAnchorEl(null);
 
@@ -95,10 +123,11 @@ function ChatHeader({ username }) {
     navigate("/login");
   };
 
-  const handleCall = () => {
+  const handleCall = (type = "audio") => {
     const callData = {
       senderInfo : userInfo,
-      reciver: username
+      reciver: username,
+      type,
     }
     initiateCall(callData, dispatch)
   };
@@ -110,7 +139,10 @@ function ChatHeader({ username }) {
     }
     endCall(callData, dispatch)
   };
+
+
   if (callStatus === "outgoing" || callStatus === "rejected") {
+
     return (
       <Fade in={!fadeOut} timeout={500}>
         <HeaderContainer sx={{ backgroundColor: "#D81B60", color: "white" }}>
@@ -161,10 +193,10 @@ function ChatHeader({ username }) {
       </LeftSection>
 
       <RightSection>
-        <IconButton color="primary">
+        <IconButton color="primary" onClick={() => handleCall("video")}>
           <Videocam />
         </IconButton>
-        <IconButton color="primary" onClick={handleCall}>
+        <IconButton color="primary" onClick={() => handleCall("audio")}>
           <Call />
         </IconButton>
         

@@ -1,6 +1,6 @@
 import  { clearIncomingCall } from './features/call/callSlice'
 
-import FloatingWindow from './components/ui/FloatingWindow';
+import CallWindow from './components/ui/CallWindow';
 
 import React, { useEffect, useState } from "react";
 import ErrorScreen from "./components/ui/ErrorScreen";
@@ -79,7 +79,7 @@ function App() {
         onClose={handleCloseIncomingCall}
         callerName={incomingCallData?.userName}
       />
-{callStatus == "accepted" && <FloatingWindow callType="video" />}
+{callStatus == "accepted" && <CallWindow callType="video" />}
 
     </>
   );
