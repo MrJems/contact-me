@@ -56,14 +56,9 @@ export const connectWithSocketServer = (userData, dispatch) => {
     createPeerConnection(dispatch, callData.userName);
     dispatch(setCallAccepted());
     sendWebRTCOffer(callData);
-    // Mark the call as answered in your system
-    // Possibly notify the other side:
-    // io.to(theCallerSocket).emit("call-answered", { ... });
   });
 
   socket.on("reject-call", (callData) => {
-    // Mark the call as rejected
-    // Possibly emit "call-ended" to the caller
     dispatch(setCallRejected());
     console.log("call rejected data: ", callData);
   });
@@ -84,6 +79,7 @@ export const connectWithSocketServer = (userData, dispatch) => {
         break;
       case "ICE_CANDIDATE":
         handleWebRTCCandidate(data);
+        break;
       default:
         return;
     }
