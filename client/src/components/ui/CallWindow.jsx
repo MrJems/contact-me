@@ -80,14 +80,21 @@ const CallWindow = ({
 const toggleMaximize = () => {
     setIsMaximized((prev) => !prev);
   };
-  const toggleMute = () => {
+
+const toggleMute = () => {
+  setIsMuted((prevIsMuted) => {
+    const newIsMuted = !prevIsMuted;
+    
     if (localStream) {
       localStream.getAudioTracks().forEach((track) => {
-        track.enabled = !isMuted;
+        track.enabled = !newIsMuted;
       });
     }
-    setIsMuted((prev) => !prev);
-  };
+
+    return newIsMuted;
+  });
+};
+
 
   const toggleVideo = () => {
     if (localStream) {
@@ -136,8 +143,8 @@ const toggleMaximize = () => {
 
   const localVideoContainerStyle = {
     position: "absolute",
-    bottom: 10,
-    right: 10,
+    top: 10,
+    right: 30,
     width: 120,
     height: 90,
     border: "2px solid #fff",
@@ -162,7 +169,7 @@ const toggleMaximize = () => {
     display: "flex",
     justifyContent: "center",
     boxSizing: "border-box",
-    padding: isMaximized ? "36px" : "8px", 
+    padding: isMaximized ? "70px" : "8px", 
   };
 
   const bottomMenuStyle = {
@@ -187,20 +194,11 @@ const toggleMaximize = () => {
       >
         {audioOnly ? (
           <>
-            <audio ref={remoteVideoRef} autoPlay muted={false} style={{ display: "none" }} />
-            <img
-              src={avatarUrl}
-              alt="Avatar"
-              style={{
-                width: "40%",
-                maxWidth: "200px",
-                borderRadius: "50%",
-                objectFit: "cover",
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-              }}
+           <video
+              ref={remoteVideoRef}
+              style={remoteVideoStyle}
+              autoPlay
+              muted={false}
             />
           </>
         ) : (

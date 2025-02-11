@@ -13,7 +13,9 @@ const onlyAudioConstraints = {
 
 const defaultConstraints = {
   audio: true,
-  video: true,
+  video: {
+    frameRate: { ideal: 25 },
+  },
 };
 
 const configuration = {
