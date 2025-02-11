@@ -45,7 +45,6 @@ function ChatPage({ selectedUser }) {
   useEffect(() => {
     if (username && userInfo?.username && socketConnected) {
 
-      console.log("ooooooooooooooo userInfo",userInfo)
       dispatch(setChosenChatUser(username));
       getChatHistory({
         reciver: username,

@@ -21,7 +21,6 @@ const ChatWindow = ({ user }) => {
       sender: user ? user.username : 'user',
       text,
     };
-console.log("newmeasdfe ", newMessage);
 if(text.length > 0){
   sendDirectMessage(newMessage)
 }

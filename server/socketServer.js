@@ -32,7 +32,6 @@ const registerSocketServer = (server) => {
   const emitOnlineUsers = () => {
     const activeAdminConnections = getActiveConnections("admin");
     const onlineUsers = getOnlineUsers();
-    console.log("acitihgabdfndmirehife : ", activeAdminConnections);
     activeAdminConnections.forEach((socketId) => {
       io.to(socketId).emit("online-users", onlineUsers);
     });
@@ -41,7 +40,6 @@ const registerSocketServer = (server) => {
   io.on("connection", (socket) => {
     console.log("user connected");
     console.log(socket.id);
-    // console.log("Socket ", socket);
 
     newConnectionHandler(socket, io);
     emitOnlineUsers();
@@ -55,31 +53,22 @@ const registerSocketServer = (server) => {
     });
 
     socket.on("initiate-call", (data) => {
-      console.log("callllll data ", data);
       callHandler(socket, io, data);
     });
 
     socket.on("answer-call", (data) => {
       callAnswerHandler(socket, io, data);
-      // Mark the call as answered in your system
-      // Possibly notify the other side:
-      // io.to(theCallerSocket).emit("call-answered", { ... });
     });
 
     socket.on("reject-call", (data) => {
       callRejectHandler(socket, io, data);
-      // Mark the call as rejected
-      // Possibly emit "call-ended" to the caller
-      // callEndHandler(socket, io, callData);
     });
 
     socket.on("end-call", (data) => {
-      console.log("callllll data ", data);
       callEndHandler(socket, io, data);
     });
 
     socket.on("webRTC-signaling", (data) => {
-      console.log("webrtc signaling data : ", data);
       sendWebRtcSignalingDataHandler(socket, io, data);
     });
     socket.on("disconnect", () => {
@@ -89,7 +78,6 @@ const registerSocketServer = (server) => {
 
   setInterval(() => {
     emitOnlineUsers();
-    console.log("getOnlineUsers users ", getOnlineUsers());
   }, 5000);
 };
 

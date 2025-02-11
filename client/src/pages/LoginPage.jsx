@@ -28,7 +28,6 @@ const LoginPage = () => {
     dispatch(loginUser(formData))
       .unwrap()
       .then((res) => {
-        console.log('Logged in user:', res);
       })  
       .then(() => {
         navigate('/');

@@ -29,28 +29,22 @@ export const connectWithSocketServer = (userData, dispatch) => {
   });
 
   socket.on("connect", () => {
-    console.log("connected ", socket.id);
-    console.log("connected data", userData);
     dispatch(setSocketConnected(true));
   });
 
   socket.on("online-users", (data) => {
-    console.log("online users ", data);
     dispatch(setOnlineUsers(data));
   });
 
   socket.on("chat-history", (data) => {
     dispatch(setMessages(data.messages));
-    console.log("the chat history data : ", data);
   });
 
   socket.on("incoming-call", (data) => {
-    console.log("incoming call data : ", data);
     dispatch(setIncomingCall(data));
   });
 
   socket.on("answer-call", async (callData) => {
-    console.log("answe came xyz: ", callData);
     const onlyAudio = callData.type == "audio" ? true : false;
     await getLocalStream(dispatch, onlyAudio);
     createPeerConnection(dispatch, callData.userName);
@@ -60,16 +54,13 @@ export const connectWithSocketServer = (userData, dispatch) => {
 
   socket.on("reject-call", (callData) => {
     dispatch(setCallRejected());
-    console.log("call rejected data: ", callData);
   });
 
   socket.on("call-ended", () => {
-    console.log("Call ended by the other side or server");
     dispatch(clearIncomingCall());
   });
 
   socket.on("webRTC-signaling", (data) => {
-    console.log("inside wenrtc signaling : ", data);
     switch (data.type) {
       case "OFFER":
         handleWebRTCOffer(data);
@@ -92,17 +83,14 @@ export const sendDirectMessage = (data) => {
     return;
   }
 
-  console.log("Sending direct message:", data);
   socket.emit("send-message", data);
 };
 
 export const getChatHistory = (data) => {
-  console.log("chhahhdhaht data ", data);
   if (!socket) {
     console.error("Socket is not connected. Cannot send message.");
     return;
   }
-  console.log(">........");
   socket.emit("chat-history", data);
 };
 
@@ -119,13 +107,11 @@ export const initiateCall = (data, dispatch) => {
 export const answerCall = (callData) => {
   if (!socket) return console.error("Socket is not connected");
   socket.emit("answer-call", callData);
-  console.log("Answered call with data:", callData);
 };
 
 export const rejectCall = (callData) => {
   if (!socket) return console.error("Socket is not connected");
   socket.emit("reject-call", callData);
-  console.log("Rejected call with data:", callData);
 };
 
 export const endCall = (data, dispatch) => {
@@ -133,7 +119,6 @@ export const endCall = (data, dispatch) => {
 
   dispatch(endOutgoingCall());
   socket.emit("end-call", data);
-  console.log("Ended call");
 };
 
 export const sendWebRTCSignalingData = (data) => {
@@ -145,7 +130,6 @@ export const disconnectSocketServer = () => {
   if (socket) {
     socket.disconnect();
     console.warn("Socket disconnected");
-    // console.log("Socket disconnected");
     socket = null;
   }
 };

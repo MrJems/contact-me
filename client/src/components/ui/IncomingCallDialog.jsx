@@ -51,7 +51,7 @@ const RingingAvatar = styled(Avatar)(({ theme }) => ({
 function IncomingCallDialog({ open, onClose, callerName = "Unknown" }) {
   const dispatch = useDispatch();
   const { userInfo } = useSelector((state) => state.user);
-  const { audioOnly } = useSelector((state) => state.call);
+  const { audioOnly, localStream } = useSelector((state) => state.call);
 
   const handleAnswer = async () => {
     const callData = {

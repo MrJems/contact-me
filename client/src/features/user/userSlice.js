@@ -116,14 +116,12 @@ export const initializeApp = () => (dispatch) => {
   const token = localStorage.getItem("token");
   const annmsID = localStorage.getItem("anonymousId");
   if (token && annmsID) {
-    console.log("Clearing localStorage due to invalid state.");
     localStorage.clear();
     window.location.reload();
   }
   if (token) {
     dispatch(setToken(token));
   } else {
-    console.log("Token not available");
     let anonymousId = localStorage.getItem("anonymousId");
     if (!anonymousId) {
       anonymousId = uuidv4();

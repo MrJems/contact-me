@@ -6,7 +6,6 @@ export const registerUserApi = async (userData) => {
 };
 
 export const loginUserApi = async (credentials) => {
-  console.log("fetching login");
   const response = await axiousInstance.post("/auth/login", credentials);
   return response.data;
 };

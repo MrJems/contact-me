@@ -4,6 +4,7 @@ import { sendWebRTCSignalingData } from "./socketConnection";
 import { store } from "../store";
 
 let peerConnection;
+let pendingCandidates = [];
 
 const onlyAudioConstraints = {
   audio: true,
@@ -19,19 +20,24 @@ const configuration = {
   iceServers: [
     // { urls: "stun:stun.l.google.com:19302" },
     { urls: "stun:stun1.l.google.com:19302" },
-    { urls: "stun:stun2.l.google.com:19302" },
-    { urls: "stun:stun3.l.google.com:19302" },
-    // { urls: "stun:stun4.l.google.com:19302" },
-    // { urls: "stun:stun.stunprotocol.org" },
   ],
 };
 
 export const getLocalStream = async (dispatch, onlyAudio = false, x = "0") => {
+  const localStream = store.getState().call.localStream;
+  console.log("loggin getLocalStream : ", onlyAudio, localStream, x);
+
+  if (localStream) {
+    localStream.getTracks().forEach((track) => track.stop());
+  }
+
   const constraints = onlyAudio ? onlyAudioConstraints : defaultConstraints;
   try {
     const stream = await navigator.mediaDevices.getUserMedia(constraints);
 
     dispatch(setLocalStream(stream));
+
+    return stream;
   } catch (err) {
     console.log("Error accessing local devices: ", err);
   }
@@ -41,9 +47,7 @@ export const createPeerConnection = (dispatch, callData) => {
   peerConnection = new RTCPeerConnection(configuration);
 
   peerConnection.onicecandidate = (event) => {
-    console.log("ICE candidate 1:", event.candidate);
     if (event.candidate) {
-      console.log("ICE candidate 2:", event.candidate);
       sendWebRTCSignalingData({
         callInfo: { userName: callData },
         candidate: event.candidate,
@@ -53,7 +57,6 @@ export const createPeerConnection = (dispatch, callData) => {
   };
 
   peerConnection.onconnectionstatechange = () => {
-    console.log("state changed : ", peerConnection.connectionState);
     if (peerConnection.connectionState === "connected") {
       console.log("Successfully connected with the other user");
     }
@@ -89,28 +92,64 @@ export const sendWebRTCOffer = async (callData) => {
 };
 
 export const handleWebRTCOffer = async (data) => {
-  await peerConnection.setRemoteDescription(data.offer);
-  const answer = await peerConnection.createAnswer();
-  await peerConnection.setLocalDescription(answer);
-  sendWebRTCSignalingData({
-    callInfo: data.userDetails,
-    answer,
-    type: "ANSWER",
-  });
-  console.log("signaling data : ", data);
+  if (peerConnection) {
+    await peerConnection.setRemoteDescription(data.offer);
+
+    // Process any pending ICE candidates
+    if (pendingCandidates.length > 0) {
+      for (const candidate of pendingCandidates) {
+        try {
+          await peerConnection.addIceCandidate(candidate);
+        } catch (err) {
+          console.error("Error adding pending ICE candidate", err);
+        }
+      }
+      pendingCandidates = [];
+    }
+
+    const answer = await peerConnection.createAnswer();
+    await peerConnection.setLocalDescription(answer);
+    sendWebRTCSignalingData({
+      callInfo: data.userDetails,
+      answer,
+      type: "ANSWER",
+    });
+  }
 };
 
 export const handleWebRTCAnswer = async (data) => {
-  console.log("handleWebRTCAnswer data : ", data);
+  if (peerConnection) {
+    await peerConnection.setRemoteDescription(data.answer);
 
-  await peerConnection.setRemoteDescription(data.answer);
+    // Process any pending ICE candidates
+    if (pendingCandidates.length > 0) {
+      for (const candidate of pendingCandidates) {
+        try {
+          await peerConnection.addIceCandidate(candidate);
+        } catch (err) {
+          console.error("Error adding pending ICE candidate", err);
+        }
+      }
+      pendingCandidates = [];
+    }
+  }
 };
 
 export const handleWebRTCCandidate = async (data) => {
-  console.log("ice candidate came : ", data);
   try {
-    await peerConnection.addIceCandidate(data.candidate);
+    if (peerConnection) {
+      // Only add candidate if we have a remote description set
+      if (
+        peerConnection.remoteDescription &&
+        peerConnection.remoteDescription.type
+      ) {
+        await peerConnection.addIceCandidate(data.candidate);
+      } else {
+        // Otherwise, queue it for later
+        pendingCandidates.push(data.candidate);
+      }
+    }
   } catch (err) {
-    console.error("error occured when trying to add icecandiatae", err);
+    console.error("error occured when trying to add ice candidate", err);
   }
 };

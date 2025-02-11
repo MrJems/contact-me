@@ -53,11 +53,9 @@ const callSlice = createSlice({
       state.outgoingCallData = null;
     },
     setLocalStream: (state, action) => {
-      console.log("steaming...........", action.payload);
       state.localStream = action.payload;
     },
     setRemoteStream: (state, action) => {
-      console.log("steaming remote...........", action.payload);
       state.remoteStream = action.payload;
     },
   },

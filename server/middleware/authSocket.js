@@ -6,7 +6,6 @@ const verifySocketUser = async (socket, next) => {
   try {
     const { token, anonymousId } = socket.handshake.auth.userData || {};
 
-    console.log("-------runnning middleware-------", socket.handshake.auth);
     if (!token && !anonymousId) {
       return next(
         new Error("No token or anonymousId provided, authorization denied.")
@@ -30,19 +29,12 @@ const verifySocketUser = async (socket, next) => {
         userName: user.username,
         role: user.role,
       };
-      console.log("...........all good user ", socket.data.user);
-      return next(); // All good, proceed
+      return next();
     }
 
-    // ====================================
-    //   2) If anonymousId is present
-    // ====================================
     if (anonymousId) {
-      // Attempt to find an existing user with that username
       const anonymousUser = await User.findOne({ username: anonymousId });
       if (!anonymousUser) {
-        // We do NOT create a new user if it doesn't exist.
-        // We simply fail the connection if not found.
         return next(
           new Error("Anonymous user not found, authorization denied.")
         );
@@ -53,8 +45,6 @@ const verifySocketUser = async (socket, next) => {
         userName: anonymousUser.username,
         role: anonymousUser.role,
       };
-
-      // socket.data.user = anonymousUser;
       return next();
     }
   } catch (error) {
