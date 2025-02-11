@@ -1,4 +1,5 @@
-import  { clearIncomingCall } from './features/call/callSlice'
+import  { clearIncomingCall, setLocalStream } from './features/call/callSlice'
+
 
 import CallWindow from './components/ui/CallWindow';
 
@@ -26,7 +27,7 @@ function App() {
   const [initialDataLoaded, setInitialDataLoaded] = useState(false);
   const [error, setError] = useState(null);
   // const [showIncomingCallPopup, setShowIncomingCallPopup] = useState(false);
-  const { callStatus, incomingCallData, showIncomingDialog } = useSelector((state) => state.call);
+  const { callStatus, incomingCallData, showIncomingDialog, localStream } = useSelector((state) => state.call);
 
   useEffect(() => {
     dispatch(initializeApp());
@@ -38,7 +39,6 @@ function App() {
         setInitialDataLoaded(true);
 
         if ((token && !anonymousId) || (!token && anonymousId)) {
-          console.log("Setting up socket connection...");
             connectWithSocketServer({ token, anonymousId }, dispatch);
         }
       } catch (err) {
@@ -51,6 +51,15 @@ function App() {
     initializeAppData();
   }, [dispatch, token, anonymousId]);
 
+  useEffect(() => {
+  
+    if (callStatus != "accepted" && localStream) {
+      localStream.getTracks().forEach((track) => track.stop());
+
+      dispatch(setLocalStream(null));
+
+    }
+  },[callStatus])
   const handleCloseIncomingCall = () => {
     dispatch(clearIncomingCall());
   };

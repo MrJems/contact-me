@@ -5,11 +5,9 @@ export const getAllUsers = createAsyncThunk(
   "admin/getAllUsers",
   async (_, { rejectWithValue }) => {
     try {
-      console.log("Fetching user data...");
       const response = await fetchUserData();
       return response;
     } catch (error) {
-      console.error("Error fetching user data:", error);
       return rejectWithValue(error.response?.data || "Failed to fetch users");
     }
   }

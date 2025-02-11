@@ -7,7 +7,6 @@ import Box from "@mui/material/Box";
 
 const RoleRouter = () => {
   const role = useSelector((state) => state.user.userInfo?.role);
-console.log("role", role)
   if (role === "admin") {
     return <AdminHomePage />;
   } else if (role === "user") {

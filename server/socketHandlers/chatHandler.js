@@ -36,7 +36,6 @@ const updateChatHistory = async (
     }
 
     conversation.participants.forEach((userId) => {
-      console.log("------------userid.... ", userId);
       const activeConnections = getActiveConnections(userId.username);
 
       activeConnections.forEach((socketId) => {
@@ -47,7 +46,6 @@ const updateChatHistory = async (
       });
     });
   } else {
-    console.log("NOOOOOOOOOOOOOOOOOo Convo");
     // const io = getSocketServerInstance();
     // if (toSpecifiedSocketId) {
     //   return io.to(toSpecifiedSocketId).emit("chat-history", {
@@ -55,11 +53,9 @@ const updateChatHistory = async (
     //     participants: [],
     //   });
     // }
-
     // conversation.participants.forEach((userId) => {
     //   console.log("------------userid.... ", userId);
     //   const activeConnections = getActiveConnections(userId.username);
-
     //   activeConnections.forEach((socketId) => {
     //     io.to(socketId).emit("chat-history", {
     //       messages: [],

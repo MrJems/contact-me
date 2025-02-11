@@ -74,17 +74,8 @@ function ChatHeader({ username }) {
 
       return () => clearTimeout(timer);
     }
-
-    if(callStatus === "idle") {
-
-      if(localStream) {
-           localStream.getTracks().forEach(track => track.stop())
-           dispatch(setLocalStream(null))
-          }
-     }
-  
      
-  }, [callStatus, localStream,  dispatch]);
+  }, [callStatus,  dispatch]);
 
   useEffect(() => {
     let timer;
@@ -138,6 +129,9 @@ function ChatHeader({ username }) {
       reciver: username
     }
     endCall(callData, dispatch)
+    if (localStream) {
+      localStream.getTracks().forEach((track) => track.stop());
+    }
   };
 
 

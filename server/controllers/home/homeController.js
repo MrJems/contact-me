@@ -51,7 +51,6 @@ const homeController = async (req, res) => {
 
     req.user = decoded;
     const user = await User.findById(req.user.userId);
-    console.log("this is user", user);
     if (!user) {
       return res.status(401).json({ message: "Invalid Username or password" });
     }

@@ -39,7 +39,6 @@ const sendMessageHandler = async (socket, data) => {
       });
       updateChatHistory(newConversation._id.toString());
     }
-    console.log(data);
   } catch (err) {
     console.log(err);
   }
