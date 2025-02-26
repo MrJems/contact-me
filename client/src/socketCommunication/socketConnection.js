@@ -37,7 +37,8 @@ export const connectWithSocketServer = (userData, dispatch) => {
   });
 
   socket.on("chat-history", (data) => {
-    dispatch(setMessages(data.messages));
+    console.log("chat history data : ", data);
+    dispatch(setMessages(data));
   });
 
   socket.on("incoming-call", (data) => {

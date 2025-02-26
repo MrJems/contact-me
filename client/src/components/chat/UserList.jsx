@@ -44,21 +44,22 @@ function UserList({ onUserSelect }) {
     (state) => state.admin
   );
 
+  const { unread } = useSelector(
+    (state) => state.chat
+  );
+
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUserId, setSelectedUserId] = useState(null);
 
-  // Filter/Sort states
-  const [roleFilter, setRoleFilter] = useState("all"); // 'all', 'user', 'anonymous'
-  const [sortOrder, setSortOrder] = useState("asc");  // 'asc' or 'desc'
+  const [roleFilter, setRoleFilter] = useState("all"); 
+  const [sortOrder, setSortOrder] = useState("asc");
 
-  // For the Filter Menu
   const [anchorEl, setAnchorEl] = useState(null);
 
   useEffect(() => {
     dispatch(getAllUsers());
-  }, [dispatch]);
+  }, [dispatch, roleFilter, sortOrder]);
 
-  // Load filter/sort preferences from localStorage on mount
   useEffect(() => {
     const savedRoleFilter = localStorage.getItem("roleFilter");
     const savedSortOrder = localStorage.getItem("sortOrder");
@@ -128,22 +129,18 @@ function UserList({ onUserSelect }) {
     closeFilterMenu();
   };
 
-  // Filter and sort the users
   const filteredUsers = users
     .filter((user) => {
-      // Search filter
       const matchesSearch = user.username
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
 
-      // Role filter
       const matchesRole =
         roleFilter === "all" || (user.role && user.role === roleFilter);
 
       return matchesSearch && matchesRole;
     })
     .sort((a, b) => {
-      // Sort by username ascending or descending
       const nameA = a.username.toLowerCase();
       const nameB = b.username.toLowerCase();
 
@@ -240,7 +237,7 @@ function UserList({ onUserSelect }) {
           const isOnline = onlineUsers.some(
             (onlineUser) => onlineUser.userId === userId
           );
-          const unreadCount = user.unreadCount ?? 0;
+          const unreadCount =  unread.filter((msg) => msg.username === user.username).length;
 
           return (
             <ListItemButton
@@ -280,7 +277,7 @@ function UserList({ onUserSelect }) {
               <ListItemText
                 sx={{ marginLeft: 1 }}
                 primary={user.username}
-                secondary={user.role ? `Role: ${user.role}` : null}
+                // secondary={user.role ? `Role: ${user.role}` : null}
               />
             </ListItemButton>
           );
