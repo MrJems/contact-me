@@ -18,7 +18,7 @@ const chatHistoryHandler = require("./socketHandlers/chatHistoryHandler");
 const registerSocketServer = (server) => {
   const io = require("socket.io")(server, {
     cors: {
-      origin: "*",
+      origin: "https://contact-karan.vercel.app/",
       methods: ["GET", "POST"],
     },
   });
